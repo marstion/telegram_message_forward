@@ -2,6 +2,16 @@
 
 使用 Pyrogram 实现的 Telegram 消息转发工具，支持通过 Bot 接收消息链接并原样转发消息内容。
 
+## 重要提示
+使用 Docker 容器部署时，第一次运行必须采用交互模式启动，以便完成手机号码或机器人令牌的验证流程，并生成必要的会话文件。
+```
+Pyrogram is free software and comes with ABSOLUTELY NO WARRANTY. Licensed
+under the terms of the GNU Lesser General Public License v3.0 (LGPL-3.0).
+
+INFO:pyrogram.session.session:PingTask started
+Enter phone number or bot token: 
+```
+
 ## 功能特点
 
 - 🔗 支持多种 Telegram 消息链接格式

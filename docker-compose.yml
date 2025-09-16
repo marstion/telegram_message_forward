@@ -1,0 +1,10 @@
+services:
+  telegram_message_forward:
+    build: .
+    container_name: telegram_message_forward
+    hostname: telegram_message_forward
+    volumes:
+    - ./sessions:/app/sessions
+    env_file:
+    - ./.env
+    restart: always
