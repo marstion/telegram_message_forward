@@ -1,0 +1,6 @@
+.env
+*.log
+downloads/
+11111/
+sessions/
+__pycache__/
