@@ -8,45 +8,14 @@ import asyncio
 import logging
 import sys
 import os
-from bot_handler import MessageExtractorBot
 
 # 设置日志格式
 logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-    ]
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 
 logger = logging.getLogger(__name__)
-
-
-def check_environment():
-    """检查环境配置"""
-    required_vars = ['API_ID', 'API_HASH', 'BOT_TOKEN']
-    missing_vars = []
-    
-    # 检查 .env 文件是否存在
-    if not os.path.exists('.env'):
-        logger.error(".env 文件不存在")
-        logger.info("请复制 env_example.txt 为 .env 并填入您的配置")
-        return False
-    
-    # 检查环境变量
-    from dotenv import load_dotenv
-    load_dotenv()
-    
-    for var in required_vars:
-        if not os.getenv(var):
-            missing_vars.append(var)
-    
-    if missing_vars:
-        logger.error(f"缺少必要的环境变量: {', '.join(missing_vars)}")
-        logger.info("请在 .env 文件中设置这些变量")
-        return False
-    
-    return True
 
 
 async def main():
@@ -55,13 +24,20 @@ async def main():
     logger.info("Telegram 消息转发工具启动")
     logger.info("=" * 50)
     
-    # 检查环境配置
-    if not check_environment():
-        logger.error("环境配置检查失败，程序退出")
+    try:
+        # 导入配置和Bot类（环境变量检查在config.py中自动执行）
+        from bot_handler import MessageExtractorBot
+        
+        # 创建并启动Bot
+        bot = MessageExtractorBot()
+    except ValueError as e:
+        # 捕获配置错误
+        logger.error("配置错误:")
+        print(str(e))
         sys.exit(1)
-    
-    # 创建并启动Bot
-    bot = MessageExtractorBot()
+    except ImportError as e:
+        logger.error(f"导入错误: {e}")
+        sys.exit(1)
     
     try:
         await bot.start()
