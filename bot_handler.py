@@ -113,11 +113,8 @@ class MessageExtractorBot:
             """处理消息链接"""
             text = message.text.strip()
             
-            # 清理可能的前缀（如 @ 符号）
-            cleaned_text = text.lstrip('@').strip()
-            
             # 检查是否包含 t.me 链接
-            if "t.me" not in cleaned_text:
+            if "t.me" not in text:
                 await message.reply(
                     "❌ 请发送有效的 Telegram 消息链接\n\n"
                     "支持的格式:\n"
@@ -136,7 +133,7 @@ class MessageExtractorBot:
                     await self.extractor.initialize()
                 
                 # 获取原始消息对象（可能是媒体组）
-                messages_to_forward = await self.extractor.get_media_group_messages(cleaned_text)
+                messages_to_forward = await self.extractor.get_media_group_messages(text)
                 
                 if messages_to_forward:
                     # 转发消息（可能是多条）
@@ -144,7 +141,7 @@ class MessageExtractorBot:
                         logger.info(f"检测到媒体组，包含 {len(messages_to_forward)} 条消息")
                         # 更新处理消息
                         await processing_msg.edit(f"📸 检测到媒体组（{len(messages_to_forward)} 个文件），正在合并转发...")
-                        await self.forward_media_group(message.chat.id, messages_to_forward, cleaned_text)
+                        await self.forward_media_group(message.chat.id, messages_to_forward, text)
                         # 转发成功后删除处理消息和用户消息
                         try:
                             await processing_msg.delete()
@@ -154,7 +151,7 @@ class MessageExtractorBot:
                     else:
                         logger.info("转发单条消息")
                         await processing_msg.edit("🔄 正在转发消息...")
-                        await self.forward_original_message(message.chat.id, messages_to_forward[0], cleaned_text)
+                        await self.forward_original_message(message.chat.id, messages_to_forward[0], text)
                         # 转发成功后删除处理消息和用户消息
                         try:
                             await processing_msg.delete()
@@ -174,7 +171,6 @@ class MessageExtractorBot:
                         "请检查链接是否正确，并确保您有权限访问该消息。"
                     )
                     logger.warning(f"用户 {message.from_user.id} 的消息转发失败: {text}")
-                    logger.debug(f"清理后的文本: {cleaned_text}")
                 
             except Exception as e:
                 error_msg = (
