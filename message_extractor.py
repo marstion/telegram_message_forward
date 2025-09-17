@@ -92,15 +92,21 @@ class MessageExtractor:
             return None
         
         try:
+            logger.info(f"尝试获取消息: chat_id={parsed['chat_id']}, message_id={parsed['message_id']}, type={parsed['type']}")
+            
             # 获取原始消息
             original_message = await self.client.get_messages(
                 chat_id=parsed['chat_id'],
                 message_ids=parsed['message_id']
             )
             
+            logger.info(f"get_messages 返回结果类型: {type(original_message)}")
+            
             if not original_message:
-                logger.error("未找到消息")
+                logger.error(f"未找到消息: chat_id={parsed['chat_id']}, message_id={parsed['message_id']}")
                 return None
+            
+            logger.info(f"成功获取消息: {original_message.id} from {original_message.chat.title or original_message.chat.id}")
             
             # 检查是否是媒体组消息
             if hasattr(original_message, 'media_group_id') and original_message.media_group_id:
@@ -130,7 +136,9 @@ class MessageExtractor:
                 media_group_messages.sort(key=lambda x: x.id)
                 logger.info(f"找到媒体组消息数量: {len(media_group_messages)}")
                 
-                return media_group_messages if media_group_messages else [original_message]
+                # 过滤掉None消息
+                valid_messages = [msg for msg in media_group_messages if msg is not None]
+                return valid_messages if valid_messages else [original_message]
             else:
                 # 不是媒体组，返回单个消息
                 return [original_message]

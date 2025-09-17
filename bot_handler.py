@@ -133,7 +133,9 @@ class MessageExtractorBot:
                     await self.extractor.initialize()
                 
                 # 获取原始消息对象（可能是媒体组）
+                logger.info(f"开始获取消息，链接: {text}")
                 messages_to_forward = await self.extractor.get_media_group_messages(text)
+                logger.info(f"获取到消息数量: {len(messages_to_forward) if messages_to_forward else 0}")
                 
                 if messages_to_forward:
                     # 转发消息（可能是多条）
@@ -185,6 +187,16 @@ class MessageExtractorBot:
         """原样转发消息"""
         try:
             logger.info(f"开始转发消息到聊天 {chat_id}")
+            
+            # 检查消息是否有效
+            if not original_message:
+                logger.error("原始消息为空，无法转发")
+                await self.bot.send_message(
+                    chat_id=chat_id,
+                    text="❌ 无法获取原始消息，可能消息已被删除或无权限访问"
+                )
+                return
+            
             logger.info(f"消息类型: text={bool(original_message.text)}, photo={bool(original_message.photo)}, video={bool(original_message.video)}")
             logger.info(f"原始消息来源: chat_id={original_message.chat.id}, message_id={original_message.id}")
             
